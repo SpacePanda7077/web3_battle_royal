@@ -108,11 +108,10 @@ export class Game extends Scene {
         //console.log(data);
         const backendBullets = data[id];
         if (!this.bullets[id]) {
-          this.bullets[id] = this.add.rectangle(
+          this.bullets[id] = this.add.circle(
             backendBullets.body.pos.x + 2,
             backendBullets.body.pos.y + 2,
-            4,
-            4,
+            2,
             0xffff00
           );
           //this.bullets[id].setOrigin(0, 0);
@@ -120,7 +119,13 @@ export class Game extends Scene {
           this.bullets[id].x = backendBullets.body.pos.x + 2;
           this.bullets[id].y = backendBullets.body.pos.y + 2;
         }
+        if (!id) {
+          this.bullets[id].destroy();
+        }
       }
+    });
+    this.room.onMessage("deleteBullet", (data) => {
+      this.bullets[data.id].destroy();
     });
     this.room.onMessage("playerLeft", (data) => {
       for (const id in this.player) {

@@ -173,8 +173,10 @@ export class GameRoom extends Room<Gamestate> {
 
       for (const [id, bullet] of this.state.bullet) {
         if (this.bullet[id]) {
-          this.bullet[id].body.pos.x += bullet.dirx * 20;
-          this.bullet[id].body.pos.y += bullet.diry * 20;
+          let prevX = this.bullet[id].body.pos.x;
+          let prevY = this.bullet[id].body.pos.y;
+          this.bullet[id].body.pos.x += bullet.dirx * 12;
+          this.bullet[id].body.pos.y += bullet.diry * 12;
           const d = this.distanceBtw(
             bullet.shootPosX,
             bullet.shootPosY,
@@ -182,23 +184,27 @@ export class GameRoom extends Room<Gamestate> {
             this.bullet[id].body.pos.y
           );
           for (var i = 0; i < this.tiles.length; i++) {
+            let ray = new SAT.Circle(
+              new SAT.Vector(prevX, prevY),
+              this.bullet[id].body.radius || 5
+            );
+            ray.pos.x = (prevX + this.bullet[id].body.pos.x) / 2; // Midpoint for raycast approximation
+            ray.pos.y = (prevY + this.bullet[id].body.pos.y) / 2;
             var boxe = this.tiles[i];
             var bulletBox = this.bullet[id].body;
-            var collide = SAT.testPolygonPolygon(
-              bulletBox,
-              this.tiles[i].toPolygon()
-            );
+            var collide = SAT.testPolygonCircle(this.tiles[i].toPolygon(), ray);
             if (collide) {
               this.state.bullet.delete(id);
               delete this.bullet[id];
+              this.broadcast("deleteBullet", { id: id });
               break;
             }
           }
           if (d > 300) {
             this.state.bullet.delete(id);
             delete this.bullet[id];
+            this.broadcast("deleteBullet", { id: id });
           }
-          console.log(this.tiles.length);
           this.broadcast("updateBullet", this.bullet);
         } else {
           return false;
@@ -274,11 +280,7 @@ export class GameRoom extends Room<Gamestate> {
     const bulletID = uniqid();
     const playerPos = this.player[id].body.pos;
     this.bullet[bulletID] = {
-      body: new SAT.Box(
-        new SAT.Vector(playerPos.x, playerPos.y),
-        4,
-        4
-      ).toPolygon(),
+      body: new SAT.Circle(new SAT.Vector(playerPos.x, playerPos.y), 2),
     };
     const bullet = new Bullet();
     bullet.x = this.bullet[bulletID].body.pos.x;
