@@ -1,0 +1,104 @@
+{ "compressionlevel":-1,
+ "height":10,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+            18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+         "height":10,
+         "id":1,
+         "name":"ground",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 45, 45, 45, 45, 45, 45, 45, 45, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 45, 0, 0, 0, 0, 0, 0, 45, 0,
+            0, 45, 45, 45, 45, 45, 45, 45, 45, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":10,
+         "id":2,
+         "name":"colision",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.11.0",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "columns":8,
+         "firstgid":1,
+         "image":"..\/public\/assets\/Texture\/TX Tileset Grass.png",
+         "imageheight":256,
+         "imagewidth":256,
+         "margin":0,
+         "name":"TX Tileset Grass",
+         "spacing":0,
+         "tilecount":64,
+         "tileheight":32,
+         "tiles":[
+                {
+                 "id":44,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "height":11,
+                             "id":3,
+                             "name":"",
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":32,
+                             "x":1,
+                             "y":19
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    },
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }],
+         "tilewidth":32
+        }],
+ "tilewidth":32,
+ "type":"map",
+ "version":"1.10",
+ "width":10
+}
