@@ -3,8 +3,7 @@ import { MyRoomState, Player, Bullet, Gamestate } from "./schema/MyRoomState";
 import uniqid from "uniqid";
 import SAT from "sat";
 import fs from "fs";
-import { timeStamp } from "console";
-import { setTimeout } from "timers/promises";
+import Matter from "matter-js";
 //import { Physics } from "phaser";
 
 //console.log(mapData.layers)
@@ -13,14 +12,19 @@ export class GameRoom extends Room<Gamestate> {
   player: any;
   playerData: any;
   invalidMovement: boolean;
+  Engine: Matter.Engine;
+  Bodies: Matter.Bodies;
   tiles: SAT.Box[];
   velocity: number;
   bullet: any;
   tick: number;
   tickToSecond: number;
+  playerPos: any;
+  engine: Matter.Engine;
 
   onCreate(options: any) {
     this.player = {};
+    this.playerPos = {};
     this.bullet = {};
     this.playerData = {};
     this.setState(new Gamestate());
@@ -33,112 +37,35 @@ export class GameRoom extends Room<Gamestate> {
     var reloadTime = 2000;
 
     this.onMessage("move", (client, inputs) => {
-      let newX;
-      let newY;
       const player = this.player[client.sessionId].body;
-      this.invalidMovement = false;
-
-      //console.log(newPlayer);
+      const playerData = this.state.player.get(client.sessionId);
       if (inputs.left) {
-        const tempPlayer = new SAT.Box(
-          new SAT.Vector(player.pos.x - 2, player.pos.y),
-          16,
-          16
-        ).toPolygon();
-
-        //console.log(tempPlayer);
-        tempPlayer.pos.x -= 2;
-        //console.log("newX : " + tempPlayer.pos.x);
-        for (var i = 0; i < this.tiles.length; i++) {
-          var box = this.tiles[i];
-          var collided = SAT.testPolygonPolygon(tempPlayer, box.toPolygon());
-          if (collided) {
-            //console.log(collided);
-            this.invalidMovement = collided;
-            break;
-          }
-        }
-        if (!this.invalidMovement) {
-          player.pos.x -= 2;
-        }
+        playerData.velocityX = -1;
       } else if (inputs.right) {
-        const tempPlayer = new SAT.Box(
-          new SAT.Vector(player.pos.x + 2, player.pos.y),
-          16,
-          16
-        ).toPolygon();
-
-        //console.log(tempPlayer);
-        tempPlayer.pos.x -= 2;
-        //console.log("newX : " + tempPlayer.pos.x);
-        for (var i = 0; i < this.tiles.length; i++) {
-          var box = this.tiles[i];
-          var collided = SAT.testPolygonPolygon(tempPlayer, box.toPolygon());
-          if (collided) {
-            //console.log(collided);
-            this.invalidMovement = collided;
-            break;
-          }
-        }
-        if (!this.invalidMovement) {
-          player.pos.x += 2;
-        }
+        playerData.velocityX = 1;
+      } else {
+        playerData.velocityX = 0;
       }
       if (inputs.up) {
-        const tempPlayer = new SAT.Box(
-          new SAT.Vector(player.pos.x, player.pos.y - 2),
-          16,
-          16
-        ).toPolygon();
-
-        //console.log(tempPlayer);
-        tempPlayer.pos.x -= 2;
-        //console.log("newX : " + tempPlayer.pos.x);
-        for (var i = 0; i < this.tiles.length; i++) {
-          var box = this.tiles[i];
-          var collided = SAT.testPolygonPolygon(tempPlayer, box.toPolygon());
-          if (collided) {
-            //console.log(collided);
-            this.invalidMovement = collided;
-            break;
-          }
-        }
-        if (!this.invalidMovement) {
-          player.pos.y -= 2;
-        }
+        playerData.velocityY = -1;
+      } else if (inputs.down) {
+        playerData.velocityY = 1;
+      } else {
+        playerData.velocityY = 0;
       }
-      if (inputs.down) {
-        const tempPlayer = new SAT.Box(
-          new SAT.Vector(player.pos.x, player.pos.y + 2),
-          16,
-          16
-        ).toPolygon();
-
-        //console.log(tempPlayer);
-        tempPlayer.pos.x -= 2;
-        //console.log("newX : " + tempPlayer.pos.x);
-        for (var i = 0; i < this.tiles.length; i++) {
-          var box = this.tiles[i];
-          //console.log(box);
-          var collided = SAT.testPolygonPolygon(tempPlayer, box.toPolygon());
-          if (collided) {
-            // console.log(collided);
-            this.invalidMovement = collided;
-            break;
-          }
-        }
-        if (!this.invalidMovement) {
-          player.pos.y += 2;
-        }
-      }
+      Matter.Body.setVelocity(player, {
+        x: playerData.velocityX * playerData.speed,
+        y: playerData.velocityY * playerData.speed,
+      });
+      //console.log(player.position);
     });
     // Move message ...........//
-
+    this.engine = Matter.Engine.create();
     // pointer move message .......//
     this.onMessage("pointerMove", (client, pointer) => {
       var angle = Math.atan2(
-        pointer.y - this.player[client.sessionId].body.pos.y,
-        pointer.x - this.player[client.sessionId].body.pos.x
+        pointer.y - this.player[client.sessionId].body.position.y,
+        pointer.x - this.player[client.sessionId].body.position.x
       );
       this.player[client.sessionId].r = angle;
       //this.broadcast("updatePlayer", this.player);
@@ -167,7 +94,9 @@ export class GameRoom extends Room<Gamestate> {
       //console.log(this.tickToSecond);
       for (const id in this.player) {
         if (!id) return;
-        this.broadcast("updatePlayers", this.player);
+        this.playerPos[id].x = this.player[id].body.position.x;
+        this.playerPos[id].y = this.player[id].body.position.y;
+        this.broadcast("updatePlayers", this.playerPos);
         // console.log();
       }
 
@@ -210,6 +139,7 @@ export class GameRoom extends Room<Gamestate> {
           return false;
         }
       }
+      Matter.Engine.update(this.engine, 1000 / 30);
     }, 1000 / 30);
   }
 
@@ -217,10 +147,16 @@ export class GameRoom extends Room<Gamestate> {
     console.log("player with client ID " + client.sessionId + " joined");
     const posX: number = Math.random() * 100;
     const posY: number = Math.random() * 100;
-    const vector = new SAT.Vector(500, 60);
     const playerData = this.state.player.set(client.sessionId, new Player());
     this.player[client.sessionId] = {
-      body: new SAT.Box(vector, 16, 16).toPolygon(),
+      body: Matter.Bodies.rectangle(500, 60, 16, 16),
+    };
+    Matter.Composite.add(this.engine.world, [
+      this.player[client.sessionId].body,
+    ]);
+    this.playerPos[client.sessionId] = {
+      x: this.player[client.sessionId].body.position.x,
+      y: this.player[client.sessionId].body.position.y,
       r: 0,
     };
     console.log(this.player);

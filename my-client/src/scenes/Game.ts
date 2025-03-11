@@ -55,8 +55,8 @@ export class Game extends Scene {
         const backendPlayer = data[id];
         if (!this.player[id]) {
           this.player[id] = this.add.rectangle(
-            backendPlayer.body.pos.x + 8,
-            backendPlayer.body.pos.y + 8,
+            backendPlayer.x,
+            backendPlayer.y,
             16,
             16,
             0xffff00
@@ -71,8 +71,8 @@ export class Game extends Scene {
           );
           //this.gun[id].setOrigin(0, 0);
         } else {
-          this.player[id].x = backendPlayer.body.pos.x + 8;
-          this.player[id].y = backendPlayer.body.pos.y + 8;
+          this.player[id].x = backendPlayer.x;
+          this.player[id].y = backendPlayer.y;
           this.gun[id].x = this.player[id].x + Math.cos(backendPlayer.r) * 20;
           this.gun[id].y = this.player[id].y + Math.sin(backendPlayer.r) * 20;
           this.gun[id].rotation = backendPlayer.r;

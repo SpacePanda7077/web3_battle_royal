@@ -7,7 +7,9 @@ export class MyRoomState extends Schema {
 
 export class Player extends Schema {
   @type("number") rotation: number = 0;
-  @type("number") velocity: number = 2;
+  @type("number") velocityX: number = 0;
+  @type("number") velocityY: number = 0;
+  @type("number") speed: number = 10;
   @type("number") mag: number = 30;
   @type("boolean") move: boolean = false;
   @type("boolean") shoot: boolean = false;
